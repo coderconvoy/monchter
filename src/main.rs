@@ -9,7 +9,7 @@ use lazyf::cfg;
 
 
 fn main() {
-    let cg = cfg::Cfg::load("test_data/defs.lz");
+    let cg = cfg::Cfg::load_first("-ffg",&["test_data/defs.lz"]);
     let bw = cg.get_t_def(("-bw","board.width"),8 );
     let bh = cg.get_t_def(("-bh","board.height"),8 );
     println!("Board : {},{}",bw,bh);
