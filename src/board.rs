@@ -1,8 +1,12 @@
-extern crate piston_window as Pwind;
+extern crate piston_window as p_wind;
 extern crate rand;
-use board::rand::Rng;
 
-pub const T_SIZE : i32 = 50;
+use board::rand::Rng;
+use p_wind::{rectangle};
+//use p_wind::graphics::math::Matrix2d;
+
+use graphics::math::Matrix2d;
+pub const T_SIZE : f64 = 50.0;
 
 #[derive(Clone)]
 pub enum Terrain{
@@ -15,36 +19,35 @@ pub enum Terrain{
 
 impl Terrain {
     pub fn rand()->Terrain{
-        let n = rand::thread_rng().gen_range(0,6);
+        let n = rand::thread_rng().gen_range(0,7);
         match n {
-            0|1 => Terrain::Land,
-            2|3 => Terrain::Shallow,
-            //3 => Terrain::Deep,
-            4 => Terrain::Hole,
+            0|1|2 => Terrain::Land,
+            3|4 => Terrain::Shallow,
+            5 => Terrain::Hole,
             _ => Terrain::Block,
         }
-
     }
 
-    pub fn draw(&self,t:[[f64; 3]; 2],g:&mut Pwind::G2d){
-        let rect = [0.0,0.0,T_SIZE as f64,T_SIZE as f64];
+    pub fn draw(&self,t:Matrix2d,g:&mut p_wind::G2d){
+        let rect = [0.0,0.0,T_SIZE,T_SIZE];
         match *self{
             Terrain::Land => {
-                Pwind::rectangle([0.7,0.9,0.3,1.0],rect,t,g)
+                rectangle([0.7,0.9,0.3,1.0],rect,t,g)
             }
             Terrain::Shallow => {
-                Pwind::rectangle([0.0,1.1,1.0,1.0],rect,t,g)
+                rectangle([0.0,1.1,1.0,1.0],rect,t,g)
             }
             Terrain::Deep => {
-                Pwind::rectangle([0.0,0.0,1.0,1.0],rect,t,g)
+                rectangle([0.0,0.0,1.0,1.0],rect,t,g)
             }
             Terrain::Hole => {
-                Pwind::rectangle([0.5,0.5,0.5,1.0],rect,t,g)
+                rectangle([0.5,0.5,0.5,1.0],rect,t,g)
             }
             _ => {
-                Pwind::rectangle([0.1,0.1,0.1,1.0],rect,t,g)
+                rectangle([0.1,0.1,0.1,1.0],rect,t,g)
             }
         }
+
     }
 }
 
@@ -55,13 +58,13 @@ pub struct Tile {
 
 
 pub struct Board{
-    w:i32,
-    h:i32,
+    w:usize,
+    h:usize,
     tiles:Vec<Tile>,
 }
 
 impl Board {
-    pub fn new(w:i32,h:i32)->Board{
+    pub fn new(w:usize,h:usize)->Board{
         let mut t:Vec<Tile> = Vec::new() ;
         for _ in 0 .. w*h{
             t.push(Tile{terrain:Terrain::rand()});
@@ -85,7 +88,7 @@ impl Board {
                 if let Terrain::Shallow = v.terrain {} else{ continue }
                 for i in 0..4{
                     let j = 2*i;
-                    let r = res.step_dir(k as i32,j,1);
+                    let r = res.step_dir(k ,j,1);
                     if let Result::Ok(n)= r {
                         if let Terrain::Land = res.tiles[n as usize].terrain { 
                             fland = true;
@@ -103,25 +106,22 @@ impl Board {
     }
 
 
-    pub fn draw(&self,c:Pwind::Context,g:&mut Pwind::G2d){
+    pub fn draw(&self,c:p_wind::Context,g:&mut p_wind::G2d){
         let dark = [0.0,0.0,0.0,0.2];
         for (k,v) in self.tiles.iter().enumerate(){
-            let x = k as i32 % self.w ;
-            let y = k as i32 / self.w ;
+            let x = (k  % self.w) as f64;
+            let y = (k  / self.w) as f64;
 
-            use Pwind::Transformed;
-            let t = c.transform.trans((x*T_SIZE) as f64,(y*T_SIZE)as f64);
+            use p_wind::Transformed;
+            let t = c.transform.trans(x*T_SIZE,y*T_SIZE);
             v.terrain.draw(t,g);
-            if (x+y) % 2 == 0 { 
-                Pwind::rectangle(dark,[0.0,0.0,T_SIZE as f64,T_SIZE as f64],t,g);
-            }
         }
 
 
     }
 
 
-    pub fn step_dir(&self, pos:i32,dir:i32,dist:i32)->Result<i32,&str>{
+    pub fn step_dir(&self, pos:usize,dir:i32,dist:i32)->Result<usize,&str>{
         match dir % 8  {
             0 => self.step(pos,-dist,0),
             1 => self.step(pos,-dist,dist),
@@ -134,23 +134,27 @@ impl Board {
         }
     }
 
-    pub fn step(&self ,pos:i32,x:i32,y:i32)->Result<i32,&str>{
+    pub fn step(&self ,pos:usize,x:i32,y:i32)->Result<usize,&str>{
         //x first
-        let ox = pos % self.w;
-        let oy = pos / self.w;
+        let pos = pos as i32;
+        let w = self.w as i32;
+        let h = self.h as i32;
+
+        let ox = pos % w;
+        let oy = pos / w;
         
         let x = ox + x;
         let y = oy + y;
 
-        if (x < 0 )|( x >= self.w){
+        if (x < 0 )|( x >= w){
             return Result::Err("Out of X Bounds")
         }
 
-        if (y <0) | (y >= self.h){
+        if (y <0) | (y >= h){
             return Result::Err("Out of Y Bounds")
         }
 
-        Result::Ok(y * self.w + x)
+        Result::Ok((y * w + x)as usize)
 
     }
 }
