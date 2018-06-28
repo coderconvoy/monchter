@@ -1,11 +1,13 @@
 extern crate piston_window as p_wind;
-extern crate graphics;
+//extern crate gfx_graphics;
 extern crate lazyf;
-
+extern crate rand;
 mod board;
+pub mod shapes;
 
-use p_wind::{PistonWindow,Event};
+use p_wind::*;//{PistonWindow,Event,Graphics};
 
+//use gfx_graphics::back_end::GfxGraphics;
 
 use lazyf::get::SGetter;
 use lazyf::cfg;
@@ -30,9 +32,9 @@ fn main() {
             _ => {
             }
         }
-        window.draw_2d(&e,|c,mut g| {
+        window.draw_2d(&e,|c,g|{
             p_wind::clear([1.0,0.5,0.5,1.0],g);
-            board.draw(c,&mut g)
+            board.draw(c,g)
 
         });
     }

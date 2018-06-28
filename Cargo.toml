@@ -4,8 +4,7 @@ version = "0.1.0"
 authors = ["coderconvoy <thebeaky@psmail.net>"]
 
 [dependencies]
-piston_window = "0.75.0"
-piston2d-graphics = "0.26.0"
+piston_window = "0.76.0"
 find_folder = "0.3.0"
 rand = "0.3.15"
 lazyf = { path = "../mlibs/lazyf"}

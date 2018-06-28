@@ -1,11 +1,9 @@
-extern crate piston_window as p_wind;
-extern crate rand;
 
-use board::rand::Rng;
-use p_wind::{rectangle};
-//use p_wind::graphics::math::Matrix2d;
+use shapes;
+use rand::{Rng,thread_rng};
+use p_wind::{rectangle,Context,Graphics};
 
-use graphics::math::Matrix2d;
+use p_wind::math::Matrix2d;
 pub const T_SIZE : f64 = 50.0;
 
 #[derive(Clone)]
@@ -19,7 +17,7 @@ pub enum Terrain{
 
 impl Terrain {
     pub fn rand()->Terrain{
-        let n = rand::thread_rng().gen_range(0,7);
+        let n = thread_rng().gen_range(0,7);
         match n {
             0|1|2 => Terrain::Land,
             3|4 => Terrain::Shallow,
@@ -28,7 +26,7 @@ impl Terrain {
         }
     }
 
-    pub fn draw(&self,t:Matrix2d,g:&mut p_wind::G2d){
+    pub fn draw<G:Graphics>(&self,t:Matrix2d,g:&mut G){
         let rect = [0.0,0.0,T_SIZE,T_SIZE];
         match *self{
             Terrain::Land => {
@@ -47,6 +45,7 @@ impl Terrain {
                 rectangle([0.1,0.1,0.1,1.0],rect,t,g)
             }
         }
+        shapes::stroke_rect((0.,0.),(T_SIZE,T_SIZE),g,t);
 
     }
 }
@@ -106,8 +105,7 @@ impl Board {
     }
 
 
-    pub fn draw(&self,c:p_wind::Context,g:&mut p_wind::G2d){
-        let dark = [0.0,0.0,0.0,0.2];
+    pub fn draw<G:Graphics>(&self,c:Context,g:&mut G){
         for (k,v) in self.tiles.iter().enumerate(){
             let x = (k  % self.w) as f64;
             let y = (k  / self.w) as f64;
