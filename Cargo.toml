@@ -8,3 +8,5 @@ piston_window = "0.76.0"
 find_folder = "0.3.0"
 rand = "0.3.15"
 lazyf = { path = "../mlibs/lazyf"}
+enum_derive = "0.1.7"
+custom_derive = "0.1.7"

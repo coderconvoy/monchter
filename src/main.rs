@@ -2,8 +2,15 @@ extern crate piston_window as p_wind;
 //extern crate gfx_graphics;
 extern crate lazyf;
 extern crate rand;
+
+#[macro_use] extern crate custon_derive;
+#[macro_use] extern crate enum_derive;
+
+
 mod board;
+mod creatures;
 pub mod shapes;
+
 
 use p_wind::*;//{PistonWindow,Event,Graphics};
 

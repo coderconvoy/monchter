@@ -53,6 +53,7 @@ impl Terrain {
 #[derive(Clone)]
 pub struct Tile {
     terrain: Terrain
+    creature: Option<Creature>
 }
 
 
